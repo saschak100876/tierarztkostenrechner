@@ -10,9 +10,19 @@ class TKR_Migrations {
         }
     }
 
-    public static function seed_fee_rules(): void {
+    /**
+     * Seeds the five standard fee rules, but only when the table is completely empty.
+     * This protects imported data from being overwritten on re-activation.
+     */
+    public static function seed_fee_rules_if_empty(): void {
         global $wpdb;
         $table = $wpdb->prefix . 'tkr_fee_rules';
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" );
+        if ( $count > 0 ) {
+            return;
+        }
 
         $rules = [
             [
@@ -30,7 +40,7 @@ class TKR_Migrations {
             ],
             [
                 'rule_uid'      => 'rule_evening_night',
-                'rule_label_de' => 'Abend / Nacht, 18:00 bis 8:00 Uhr',
+                'rule_label_de' => 'Abend / Nacht (18:00–8:00 Uhr)',
                 'rule_slug'     => 'abendnacht',
                 'factor_min'    => 1.00,
                 'factor_max'    => 3.00,
@@ -78,12 +88,12 @@ class TKR_Migrations {
                 'is_active'     => 1,
                 'sort_order'    => 50,
                 'legal_basis'   => '§ 4 GOT',
-                'notes'         => 'Orientierungsmodus: Vergleichsansicht Normal und Notdienst',
+                'notes'         => 'Orientierungsmodus: Vergleich Normal und Notdienst',
             ],
         ];
 
         foreach ( $rules as $rule ) {
-            $wpdb->replace( $table, $rule );
+            $wpdb->insert( $table, $rule );
         }
     }
 }

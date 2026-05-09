@@ -13,11 +13,11 @@ class TKR_Subgroups_Repository {
     public function get_by_animal( string $animal_uid ): array {
         global $wpdb;
         $cache_key = 'tkr_subgroups_' . $animal_uid;
-        $cached = wp_cache_get( $cache_key, 'tkr' );
+        $cached    = wp_cache_get( $cache_key, 'tkr' );
         if ( false !== $cached ) return $cached;
 
         $results = $wpdb->get_results(
-            $wpdb->prepare( "SELECT * FROM {$this->table} WHERE animal_uid = %s AND is_active = 1 ORDER BY sort_order ASC", $animal_uid ),
+            $wpdb->prepare( "SELECT * FROM `{$this->table}` WHERE animal_uid = %s AND is_active = 1 ORDER BY sort_order ASC", $animal_uid ),
             ARRAY_A
         );
         $results = $results ?: [];
@@ -28,9 +28,15 @@ class TKR_Subgroups_Repository {
     public function get_by_uid( string $uid ): ?array {
         global $wpdb;
         $row = $wpdb->get_row(
-            $wpdb->prepare( "SELECT * FROM {$this->table} WHERE subgroup_uid = %s LIMIT 1", $uid ),
+            $wpdb->prepare( "SELECT * FROM `{$this->table}` WHERE subgroup_uid = %s LIMIT 1", $uid ),
             ARRAY_A
         );
         return $row ?: null;
+    }
+
+    public function count(): int {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$this->table}`" );
     }
 }

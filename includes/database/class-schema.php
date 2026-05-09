@@ -3,7 +3,7 @@ defined( 'ABSPATH' ) || exit;
 
 class TKR_Schema {
 
-    const DB_VERSION = '1.0.0';
+    const DB_VERSION        = '1.1.0';
     const DB_VERSION_OPTION = 'tkr_db_version';
 
     public static function create_tables(): void {
@@ -13,9 +13,9 @@ class TKR_Schema {
 
         $p = $wpdb->prefix;
 
-        $sql = [];
+        $tables = [];
 
-        $sql[] = "CREATE TABLE {$p}tkr_animals (
+        $tables[] = "CREATE TABLE {$p}tkr_animals (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             animal_uid VARCHAR(64) NOT NULL,
             animal_label_de VARCHAR(120) NOT NULL,
@@ -31,7 +31,7 @@ class TKR_Schema {
             KEY sort_order (sort_order)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_animal_subgroups (
+        $tables[] = "CREATE TABLE {$p}tkr_animal_subgroups (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             subgroup_uid VARCHAR(64) NOT NULL,
             animal_uid VARCHAR(64) NOT NULL,
@@ -47,7 +47,7 @@ class TKR_Schema {
             KEY animal_uid (animal_uid)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_got_services (
+        $tables[] = "CREATE TABLE {$p}tkr_got_services (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             service_uid VARCHAR(64) NOT NULL,
             got_number INT NOT NULL,
@@ -67,7 +67,7 @@ class TKR_Schema {
             KEY got_number (got_number)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_fee_rules (
+        $tables[] = "CREATE TABLE {$p}tkr_fee_rules (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             rule_uid VARCHAR(64) NOT NULL,
             rule_label_de VARCHAR(160) NOT NULL,
@@ -85,7 +85,7 @@ class TKR_Schema {
             KEY sort_order (sort_order)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_treatments (
+        $tables[] = "CREATE TABLE {$p}tkr_treatments (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             treatment_uid VARCHAR(96) NOT NULL,
             animal_uid VARCHAR(64) NOT NULL,
@@ -103,7 +103,7 @@ class TKR_Schema {
             KEY subgroup_uid (subgroup_uid)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_treatment_services (
+        $tables[] = "CREATE TABLE {$p}tkr_treatment_services (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             map_uid VARCHAR(128) NOT NULL,
             treatment_uid VARCHAR(96) NOT NULL,
@@ -121,7 +121,7 @@ class TKR_Schema {
             KEY service_uid (service_uid)
         ) $charset;";
 
-        $sql[] = "CREATE TABLE {$p}tkr_search_terms (
+        $tables[] = "CREATE TABLE {$p}tkr_search_terms (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             search_uid VARCHAR(128) NOT NULL,
             term_de VARCHAR(255) NOT NULL,
@@ -141,28 +141,45 @@ class TKR_Schema {
             KEY priority (priority)
         ) $charset;";
 
-        foreach ( $sql as $statement ) {
-            dbDelta( $statement );
+        foreach ( $tables as $sql ) {
+            dbDelta( $sql );
         }
 
         update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
     }
 
+    /**
+     * Returns row counts for all plugin tables.
+     * Returns null for each table that does not yet exist.
+     */
+    public static function get_table_counts(): array {
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $tables = [
+            'animals'            => "{$p}tkr_animals",
+            'animal_subgroups'   => "{$p}tkr_animal_subgroups",
+            'got_services'       => "{$p}tkr_got_services",
+            'fee_rules'          => "{$p}tkr_fee_rules",
+            'treatments'         => "{$p}tkr_treatments",
+            'treatment_services' => "{$p}tkr_treatment_services",
+            'search_terms'       => "{$p}tkr_search_terms",
+        ];
+
+        $counts = [];
+        foreach ( $tables as $key => $table ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" );
+            $counts[ $key ] = ( $wpdb->last_error === '' ) ? (int) $count : null;
+        }
+        return $counts;
+    }
+
     public static function drop_tables(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        $tables = [
-            'tkr_search_terms',
-            'tkr_treatment_services',
-            'tkr_treatments',
-            'tkr_fee_rules',
-            'tkr_got_services',
-            'tkr_animal_subgroups',
-            'tkr_animals',
-        ];
-        foreach ( $tables as $t ) {
+        foreach ( [ 'tkr_search_terms', 'tkr_treatment_services', 'tkr_treatments', 'tkr_fee_rules', 'tkr_got_services', 'tkr_animal_subgroups', 'tkr_animals' ] as $t ) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $wpdb->query( "DROP TABLE IF EXISTS {$p}{$t}" );
+            $wpdb->query( "DROP TABLE IF EXISTS `{$p}{$t}`" );
         }
         delete_option( self::DB_VERSION_OPTION );
     }
