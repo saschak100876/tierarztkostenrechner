@@ -1,5 +1,7 @@
 treatment_uid,animal_uid,subgroup_uid,treatment_label_de,treatment_slug,requires_search,requires_sex,is_active,sort_order,notes
 treat_cat_castration,animal_cat,no_subgroup,Kastration Kater / Kaetzin,kastration,0,1,1,10,no_note
 treat_cat_vaccination,animal_cat,no_subgroup,Impfung,impfung,0,0,1,20,no_note
+treat_cat_examination,animal_cat,no_subgroup,Allgemeine Untersuchung,allgemeine-untersuchung,0,0,1,30,no_note
 treat_dog_examination,animal_dog,no_subgroup,Allgemeine Untersuchung,allgemeine-untersuchung,0,0,1,10,no_note
 treat_dog_dental,animal_dog,no_subgroup,Zahnbehandlung,zahnbehandlung,0,0,1,20,no_note
+treat_dog_vaccination,animal_dog,no_subgroup,Impfung,impfung,0,0,1,30,no_note

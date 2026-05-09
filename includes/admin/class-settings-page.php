@@ -16,48 +16,62 @@ class TKR_Settings_Page {
         if ( ! current_user_can( 'manage_options' ) ) return;
 
         if ( isset( $_POST['tkr_settings_submit'] ) ) {
-            check_admin_referer( self::NONCE_ACTION, self::NONCE_FIELD );
+            if ( ! check_admin_referer( self::NONCE_ACTION, self::NONCE_FIELD ) ) {
+                wp_die( esc_html__( 'Sicherheitsprüfung fehlgeschlagen.', TKR_TEXT_DOMAIN ) );
+            }
             $this->save();
-            echo '<div class="notice notice-success is-dismissible"><p>'
-                . esc_html__( 'Einstellungen gespeichert.', TKR_TEXT_DOMAIN )
-                . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Einstellungen gespeichert.', TKR_TEXT_DOMAIN ) . '</p></div>';
         }
 
-        $opts = get_option( self::OPTION_KEY, [] );
-        $primary    = $opts['primary_color']    ?? '#20547E';
-        $accent     = $opts['accent_color']     ?? '#F39200';
-        $disclaimer = $opts['show_disclaimer']  ?? '1';
-        $layout     = $opts['layout_mode']      ?? 'full';
+        $primary    = self::get( 'primary_color',   '#20547E' );
+        $accent     = self::get( 'accent_color',    '#F39200' );
+        $disclaimer = self::get( 'show_disclaimer', '1' );
+        $layout     = self::get( 'layout_mode',     'full' );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Einstellungen', TKR_TEXT_DOMAIN ); ?></h1>
+            <h1><?php esc_html_e( 'Einstellungen – Tierarztkostenrechner', TKR_TEXT_DOMAIN ); ?></h1>
+            <p><?php esc_html_e( 'Diese Einstellungen gelten global für alle Shortcode-Einbindungen, sofern keine abweichenden Shortcode-Parameter gesetzt sind.', TKR_TEXT_DOMAIN ); ?></p>
             <form method="post">
                 <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                 <table class="form-table">
                     <tr>
-                        <th><label for="tkr_primary_color"><?php esc_html_e( 'Primärfarbe', TKR_TEXT_DOMAIN ); ?></label></th>
-                        <td><input type="color" id="tkr_primary_color" name="tkr_primary_color" value="<?php echo esc_attr( $primary ); ?>"></td>
+                        <th scope="row"><label for="tkr_primary_color"><?php esc_html_e( 'Primärfarbe', TKR_TEXT_DOMAIN ); ?></label></th>
+                        <td>
+                            <input type="color" id="tkr_primary_color" name="tkr_primary_color" value="<?php echo esc_attr( $primary ); ?>">
+                            <p class="description"><?php esc_html_e( 'Headings, Rahmen, Schaltflächen. CSS-Variable: --tkr-primary', TKR_TEXT_DOMAIN ); ?></p>
+                        </td>
                     </tr>
                     <tr>
-                        <th><label for="tkr_accent_color"><?php esc_html_e( 'Akzentfarbe', TKR_TEXT_DOMAIN ); ?></label></th>
-                        <td><input type="color" id="tkr_accent_color" name="tkr_accent_color" value="<?php echo esc_attr( $accent ); ?>"></td>
+                        <th scope="row"><label for="tkr_accent_color"><?php esc_html_e( 'Akzentfarbe', TKR_TEXT_DOMAIN ); ?></label></th>
+                        <td>
+                            <input type="color" id="tkr_accent_color" name="tkr_accent_color" value="<?php echo esc_attr( $accent ); ?>">
+                            <p class="description"><?php esc_html_e( 'Aktive Auswahl, CTA-Elemente. CSS-Variable: --tkr-accent', TKR_TEXT_DOMAIN ); ?></p>
+                        </td>
                     </tr>
                     <tr>
-                        <th><?php esc_html_e( 'Layout', TKR_TEXT_DOMAIN ); ?></th>
+                        <th scope="row"><?php esc_html_e( 'Layout-Modus', TKR_TEXT_DOMAIN ); ?></th>
                         <td>
                             <select name="tkr_layout_mode">
                                 <option value="full"    <?php selected( $layout, 'full' ); ?>><?php esc_html_e( 'Vollansicht', TKR_TEXT_DOMAIN ); ?></option>
                                 <option value="compact" <?php selected( $layout, 'compact' ); ?>><?php esc_html_e( 'Kompakt', TKR_TEXT_DOMAIN ); ?></option>
                             </select>
+                            <p class="description"><?php esc_html_e( 'Wird als CSS-Klasse tkr-layout-full / tkr-layout-compact am Rechner gesetzt.', TKR_TEXT_DOMAIN ); ?></p>
                         </td>
                     </tr>
                     <tr>
-                        <th><?php esc_html_e( 'Disclaimer anzeigen', TKR_TEXT_DOMAIN ); ?></th>
-                        <td><label><input type="checkbox" name="tkr_show_disclaimer" value="1" <?php checked( $disclaimer, '1' ); ?>> <?php esc_html_e( 'Ja', TKR_TEXT_DOMAIN ); ?></label></td>
+                        <th scope="row"><?php esc_html_e( 'Disclaimer', TKR_TEXT_DOMAIN ); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="tkr_show_disclaimer" value="1" <?php checked( $disclaimer, '1' ); ?>>
+                                <?php esc_html_e( 'Disclaimer im Ergebnis anzeigen', TKR_TEXT_DOMAIN ); ?>
+                            </label>
+                            <p class="description"><?php esc_html_e( 'Empfohlen. Kann per Shortcode-Attribut show_disclaimer="0" überschrieben werden.', TKR_TEXT_DOMAIN ); ?></p>
+                        </td>
                     </tr>
                 </table>
                 <p class="submit">
-                    <input type="submit" name="tkr_settings_submit" class="button button-primary" value="<?php esc_attr_e( 'Speichern', TKR_TEXT_DOMAIN ); ?>">
+                    <input type="submit" name="tkr_settings_submit" class="button button-primary"
+                        value="<?php esc_attr_e( 'Speichern', TKR_TEXT_DOMAIN ); ?>">
                 </p>
             </form>
         </div>
@@ -65,10 +79,16 @@ class TKR_Settings_Page {
     }
 
     private function save(): void {
+        $primary = sanitize_hex_color( wp_unslash( $_POST['tkr_primary_color'] ?? '' ) ) ?: '#20547E';
+        $accent  = sanitize_hex_color( wp_unslash( $_POST['tkr_accent_color']  ?? '' ) ) ?: '#F39200';
+        $layout  = in_array( $_POST['tkr_layout_mode'] ?? 'full', [ 'full', 'compact' ], true )
+            ? $_POST['tkr_layout_mode']
+            : 'full';
+
         update_option( self::OPTION_KEY, [
-            'primary_color'   => sanitize_hex_color( $_POST['tkr_primary_color'] ?? '#20547E' ),
-            'accent_color'    => sanitize_hex_color( $_POST['tkr_accent_color']  ?? '#F39200' ),
-            'layout_mode'     => in_array( $_POST['tkr_layout_mode'] ?? 'full', [ 'full', 'compact' ], true ) ? $_POST['tkr_layout_mode'] : 'full',
+            'primary_color'   => $primary,
+            'accent_color'    => $accent,
+            'layout_mode'     => $layout,
             'show_disclaimer' => ! empty( $_POST['tkr_show_disclaimer'] ) ? '1' : '0',
         ] );
     }

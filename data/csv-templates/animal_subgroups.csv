@@ -3,6 +3,6 @@ bird_indoor,animal_bird,Stubenvoegel,stubenvoegel,Stubenvoegel,1,1,10,no_note
 bird_aviary,animal_bird,Volierenvogel,volierenvogel,Volierenvogel,1,1,20,no_note
 bird_large_psittacine,animal_bird,Grosspsittaciden,grosspsittaciden,Grosspsittaciden,1,1,30,no_note
 horse_stallion,animal_horse,Hengst,hengst,Hengst,1,1,10,no_note
-horse_gelding,animal_horse,Wallach,wallach,Wallach,0,1,20,Kein eigener GOT-Eintrag; faellt auf allgemeine Pferdelogik zurueck
+horse_gelding,animal_horse,Wallach,wallach,Wallach,0,1,20,Kein eigener GOT-Eintrag
 horse_mare,animal_horse,Stute,stute,Stute,1,1,30,no_note
 horse_foal,animal_horse,Fohlen,fohlen,Fohlen,1,1,40,no_note

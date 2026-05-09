@@ -1,6 +1,6 @@
 rule_uid,rule_label_de,rule_slug,factor_min,factor_max,fixed_fee,is_emergency,is_active,sort_order,legal_basis,notes
 rule_normal,Normale Sprechstunde,normal,1.00,3.00,0.00,0,1,10,§ 4 GOT,Normaler GOT-Rahmen
-rule_evening_night,"Abend / Nacht, 18:00 bis 8:00 Uhr",abendnacht,1.00,3.00,0.00,0,1,20,§ 4 GOT,Besondere Zeit; nicht automatisch Notdienst
+rule_evening_night,"Abend / Nacht (18:00-8:00 Uhr)",abendnacht,1.00,3.00,0.00,0,1,20,§ 4 GOT,Besondere Zeit; nicht automatisch Notdienst
 rule_weekend_holiday,Wochenende / Feiertag,wochenende-feiertag,1.00,3.00,0.00,0,1,30,§ 4 GOT,Besondere Zeit; nicht automatisch Notdienst
 rule_emergency,Tieraerztlicher Notdienst,notdienst,2.00,4.00,50.00,1,1,40,§ 4 GOT,Notdienstgebuehr nur einmal pro Angelegenheit
 rule_unknown,Ich weiss es noch nicht / erst informieren,unbekannt,1.00,4.00,0.00,0,1,50,§ 4 GOT,Orientierungsmodus

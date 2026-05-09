@@ -1,5 +1,8 @@
 search_uid,term_de,term_normalized,term_type,animal_uid,subgroup_uid,treatment_uid,service_uid,priority,is_active,notes
 search_cat_castration_01,Kastration Katze,kastration katze,treatment,animal_cat,no_subgroup,treat_cat_castration,no_service,90,1,no_note
 search_cat_castration_02,Katze kastrieren,katze kastrieren,lay_term,animal_cat,no_subgroup,treat_cat_castration,no_service,85,1,no_note
-search_dog_dental_01,Zahn Hund,zahn hund,treatment,animal_dog,no_subgroup,treat_dog_dental,no_service,88,1,no_note
-search_dog_dental_02,Zahnstein Hund,zahnstein hund,symptom,animal_dog,no_subgroup,treat_dog_dental,no_service,80,1,no_note
+search_cat_castration_03,Kater kastrieren lassen,kater kastrieren lassen,lay_term,animal_cat,no_subgroup,treat_cat_castration,no_service,80,1,no_note
+search_dog_dental_01,Zahnstein Hund,zahnstein hund,symptom,animal_dog,no_subgroup,treat_dog_dental,no_service,80,1,no_note
+search_dog_dental_02,Zahn Hund,zahn hund,treatment,animal_dog,no_subgroup,treat_dog_dental,no_service,88,1,no_note
+search_dog_vaccination_01,Impfung Hund,impfung hund,treatment,animal_dog,no_subgroup,treat_dog_vaccination,no_service,85,1,no_note
+search_cat_vaccination_01,Impfung Katze,impfung katze,treatment,animal_cat,no_subgroup,treat_cat_vaccination,no_service,85,1,no_note
