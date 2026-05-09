@@ -5,12 +5,12 @@ class TKR_Importer {
 
     private TKR_Validator $validator;
     private array $report = [
-        'timestamp'  => '',
-        'user_id'    => 0,
-        'dry_run'    => false,
-        'errors'     => [],
-        'warnings'   => [],
-        'counts'     => [],
+        'timestamp' => '',
+        'user_id'   => 0,
+        'dry_run'   => false,
+        'errors'    => [],
+        'warnings'  => [],
+        'counts'    => [],
     ];
 
     public function __construct() {
@@ -22,20 +22,25 @@ class TKR_Importer {
     }
 
     /**
-     * Import from an array of sheets (each sheet = array of assoc rows).
-     * Set $dry_run = true to validate without writing.
+     * Import sheets. Set $dry_run = true to validate without writing.
+     *
+     * @param array $sheets  [ 'sheet_name' => [ row_array, ... ], ... ]
+     * @param bool  $dry_run
      */
     public function import( array $sheets, bool $dry_run = false ): bool {
         global $wpdb;
 
-        $this->report['timestamp'] = current_time( 'mysql' );
-        $this->report['user_id']   = get_current_user_id();
-        $this->report['dry_run']   = $dry_run;
-        $this->report['errors']    = [];
-        $this->report['warnings']  = [];
-        $this->report['counts']    = [];
+        $this->report = [
+            'timestamp' => current_time( 'mysql' ),
+            'user_id'   => get_current_user_id(),
+            'dry_run'   => $dry_run,
+            'errors'    => [],
+            'warnings'  => [],
+            'counts'    => [],
+        ];
 
         $valid = $this->validator->validate_all( $sheets );
+
         $this->report['errors']   = $this->validator->get_errors();
         $this->report['warnings'] = $this->validator->get_warnings();
 
@@ -62,24 +67,43 @@ class TKR_Importer {
             $this->report['counts']['search_terms']       = $this->upsert_search_terms( $sheets['search_terms'] );
 
             $wpdb->query( 'COMMIT' );
+
+            // Flush all TKR object-cache groups so stale data is not served
+            $this->flush_caches();
+
             update_option( 'tkr_last_import', $this->report );
             return true;
+
         } catch ( Exception $e ) {
             $wpdb->query( 'ROLLBACK' );
-            $this->report['errors'][] = 'Datenbankfehler: ' . $e->getMessage();
+            // Never expose raw DB details
+            $this->report['errors'][] = 'Datenbankfehler: Import abgebrochen. Keine Daten wurden geändert.';
             return false;
         }
     }
 
+    private function flush_caches(): void {
+        $cache_keys = [
+            'tkr_animals_active',
+            'tkr_fee_rules_active',
+        ];
+        foreach ( $cache_keys as $key ) {
+            wp_cache_delete( $key, 'tkr' );
+        }
+        // Bust all subgroup / treatment caches using group delete where available
+        if ( function_exists( 'wp_cache_flush_group' ) ) {
+            wp_cache_flush_group( 'tkr' );
+        }
+    }
+
     /**
-     * Parse a CSV file into sheets. Expects files as [ 'sheet_name' => '/path/to/file.csv' ].
+     * Parse CSV files into sheet arrays.
+     * $file_paths = [ 'sheet_name' => '/tmp/path/to/file.csv' ]
      */
     public static function parse_csv_files( array $file_paths ): array {
         $sheets = [];
         foreach ( $file_paths as $sheet => $path ) {
-            if ( ! file_exists( $path ) ) {
-                continue;
-            }
+            if ( ! file_exists( $path ) ) continue;
             $handle = fopen( $path, 'r' );
             if ( ! $handle ) continue;
 
@@ -90,6 +114,7 @@ class TKR_Importer {
                     $headers = array_map( 'trim', $line );
                     continue;
                 }
+                if ( empty( array_filter( $line ) ) ) continue; // skip blank rows
                 if ( count( $line ) !== count( $headers ) ) continue;
                 $rows[] = array_combine( $headers, $line );
             }
@@ -98,6 +123,8 @@ class TKR_Importer {
         }
         return $sheets;
     }
+
+    // ---- Upsert methods ----
 
     private function upsert_animals( array $rows ): int {
         global $wpdb;
@@ -147,19 +174,19 @@ class TKR_Importer {
         $count = 0;
         foreach ( $rows as $row ) {
             $wpdb->replace( $table, [
-                'service_uid'        => sanitize_text_field( $row['service_uid'] ),
-                'got_number'         => (int) $row['got_number'],
-                'got_part'           => sanitize_text_field( $row['got_part'] ),
-                'service_original_de'=> sanitize_textarea_field( $row['service_original_de'] ),
-                'service_label_de'   => sanitize_textarea_field( $row['service_label_de'] ),
-                'fee_1x'             => (float) $row['fee_1x'],
-                'animal_scope_raw'   => sanitize_textarea_field( $row['animal_scope_raw'] ),
-                'animal_uids'        => sanitize_text_field( $row['animal_uids'] ),
-                'subgroup_uids'      => sanitize_text_field( $row['subgroup_uids'] ),
-                'sex_scope'          => sanitize_text_field( $row['sex_scope'] ),
-                'is_general'         => (int) $row['is_general'],
-                'is_active'          => (int) $row['is_active'],
-                'notes'              => sanitize_textarea_field( $row['notes'] ?? TKR_Validator::PLACEHOLDER_NO_NOTE ),
+                'service_uid'         => sanitize_text_field( $row['service_uid'] ),
+                'got_number'          => (int) $row['got_number'],
+                'got_part'            => sanitize_text_field( $row['got_part'] ),
+                'service_original_de' => sanitize_textarea_field( $row['service_original_de'] ),
+                'service_label_de'    => sanitize_textarea_field( $row['service_label_de'] ),
+                'fee_1x'              => (float) $row['fee_1x'],
+                'animal_scope_raw'    => sanitize_textarea_field( $row['animal_scope_raw'] ),
+                'animal_uids'         => sanitize_text_field( $row['animal_uids'] ),
+                'subgroup_uids'       => sanitize_text_field( $row['subgroup_uids'] ),
+                'sex_scope'           => sanitize_text_field( $row['sex_scope'] ),
+                'is_general'          => (int) $row['is_general'],
+                'is_active'           => (int) $row['is_active'],
+                'notes'               => sanitize_textarea_field( $row['notes'] ?? TKR_Validator::PLACEHOLDER_NO_NOTE ),
             ] );
             $count++;
         }
