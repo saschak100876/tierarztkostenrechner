@@ -1,0 +1,2 @@
+map_uid,treatment_uid,service_uid,item_type,role,is_default,is_required,condition_key,sort_order,user_note_de
+map_cat_castration_exam,treat_cat_castration,service_got_000016,service,exam,1,1,no_condition,10,Wird haeufig vor einem Eingriff berechnet.
