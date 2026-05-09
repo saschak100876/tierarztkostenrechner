@@ -1,0 +1,2 @@
+service_uid,got_number,got_part,service_original_de,service_label_de,fee_1x,animal_scope_raw,animal_uids,subgroup_uids,sex_scope,is_general,is_active,notes
+service_got_000016,16,A,"Allgemeine Untersuchung mit Beratung einschliesslich Beurteilung des Ernaehrungs- und Pflegezustandes, bei Hunden, Katzen und Frettchen",Allgemeine Untersuchung Hund Katze oder Frettchen,23.62,"Hund, Katze, Frettchen","animal_dog,animal_cat,animal_ferret",no_subgroup,any,0,1,no_note

@@ -1,0 +1,13 @@
+animal_uid,animal_label_de,animal_slug,animal_group,has_subgroups,has_sex_options,is_active,sort_order,notes
+animal_cat,Katze,katze,small_animal,0,1,1,10,no_note
+animal_dog,Hund,hund,small_animal,0,1,1,20,no_note
+animal_rabbit,Kaninchen,kaninchen,small_animal,0,0,1,30,no_note
+animal_guinea_pig,Meerschweinchen,meerschweinchen,small_animal,0,0,1,40,no_note
+animal_hamster,Hamster,hamster,small_animal,0,0,1,50,no_note
+animal_bird,Vogel,vogel,bird,1,0,1,60,no_note
+animal_horse,Pferd,pferd,horse,1,1,1,70,no_note
+animal_rat,Ratte,ratte,small_animal,0,0,1,80,no_note
+animal_mouse,Maus,maus,small_animal,0,0,1,90,no_note
+animal_ferret,Frettchen,frettchen,small_animal,0,1,1,100,no_note
+animal_reptile,Reptil,reptil,exotic,0,0,1,110,no_note
+animal_amphibian,Amphibie,amphibie,exotic,0,0,1,120,no_note
